@@ -27,6 +27,11 @@ import WeatherRisk from '@/pages/weather-risk';
 import Reports from '@/pages/reports';
 import HomeLanding from '@/pages/home';
 
+// New Pages
+import Join from '@/pages/join';
+import AdminApplications from '@/pages/admin-applications';
+import Partners from '@/pages/partners';
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -70,15 +75,15 @@ const clerkAppearance = {
     logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
   },
   variables: {
-    colorPrimary: "hsl(214, 85%, 45%)",
+    colorPrimary: "hsl(217, 91%, 24%)",
     colorBackground: "hsl(0, 0%, 100%)",
-    colorText: "hsl(220, 25%, 15%)",
+    colorText: "hsl(222, 47%, 11%)",
     fontFamily: "'Thmanyah Sans', sans-serif",
     borderRadius: "0.75rem",
   },
   elements: {
     rootBox: "w-full flex justify-center",
-    cardBox: "bg-white rounded-3xl w-[440px] max-w-full overflow-hidden shadow-xl border border-gray-100",
+    cardBox: "bg-white rounded-3xl w-[440px] max-w-full overflow-hidden shadow-2xl border border-gray-100",
     card: "!shadow-none !border-0 !bg-transparent !rounded-none",
     footer: "!shadow-none !border-0 !bg-transparent !rounded-none",
   }
@@ -114,7 +119,7 @@ function HomeRedirect() {
 
 function SignInPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4" dir="rtl">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-4" dir="rtl">
       <SignIn routing="path" path="/sign-in" />
     </div>
   );
@@ -122,7 +127,7 @@ function SignInPage() {
 
 function SignUpPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4" dir="rtl">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-4" dir="rtl">
       <SignUp routing="path" path="/sign-up" />
     </div>
   );
@@ -159,6 +164,11 @@ function AppRouter() {
               <Route path="/alternatives" component={() => <ProtectedRoute component={Alternatives} />} />
               <Route path="/weather" component={() => <ProtectedRoute component={WeatherRisk} />} />
               <Route path="/reports" component={() => <ProtectedRoute component={Reports} />} />
+              
+              {/* New Role-Aware Routes */}
+              <Route path="/join" component={() => <ProtectedRoute component={Join} />} />
+              <Route path="/admin/applications" component={() => <ProtectedRoute component={AdminApplications} />} />
+              <Route path="/partners" component={() => <ProtectedRoute component={Partners} />} />
               
               <Route component={NotFound} />
             </Switch>

@@ -56,6 +56,114 @@ export const DecisionStatus = {
   rejected: 'rejected',
 } as const;
 
+export type UserRole = typeof UserRole[keyof typeof UserRole];
+
+
+export const UserRole = {
+  admin: 'admin',
+  pharmacist: 'pharmacist',
+  supply_manager: 'supply_manager',
+  beneficiary: 'beneficiary',
+} as const;
+
+export interface UserAccess {
+  userId: string;
+  role: UserRole;
+  permissions: string[];
+}
+
+export interface BeneficiaryApplication {
+  id: number;
+  userId: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  organization: string;
+  organizationType: string;
+  requestedRole: UserRole;
+  status: DecisionStatus;
+  submittedAt: string;
+  reviewedAt: string;
+  reviewerNote: string;
+}
+
+export interface BeneficiaryApplicationInput {
+  /** @minLength 2 */
+  fullName: string;
+  email: string;
+  /** @minLength 8 */
+  phone: string;
+  /** @minLength 2 */
+  organization: string;
+  organizationType: string;
+  requestedRole: UserRole;
+}
+
+export type BeneficiaryDecisionDecision = typeof BeneficiaryDecisionDecision[keyof typeof BeneficiaryDecisionDecision];
+
+
+export const BeneficiaryDecisionDecision = {
+  approved: 'approved',
+  rejected: 'rejected',
+} as const;
+
+export interface BeneficiaryDecision {
+  decision: BeneficiaryDecisionDecision;
+  reviewerNote?: string;
+  assignedRole?: UserRole;
+}
+
+export type PartnerStatus = typeof PartnerStatus[keyof typeof PartnerStatus];
+
+
+export const PartnerStatus = {
+  active: 'active',
+  suspended: 'suspended',
+  onboarding: 'onboarding',
+} as const;
+
+export interface Partner {
+  id: number;
+  name: string;
+  type: string;
+  city: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  status: PartnerStatus;
+  medicinesCount: number;
+  joinedAt: string;
+}
+
+export interface PartnerInput {
+  /** @minLength 2 */
+  name: string;
+  type: string;
+  city: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+}
+
+export type PartnerUpdateStatus = typeof PartnerUpdateStatus[keyof typeof PartnerUpdateStatus];
+
+
+export const PartnerUpdateStatus = {
+  active: 'active',
+  suspended: 'suspended',
+  onboarding: 'onboarding',
+} as const;
+
+export interface PartnerUpdate {
+  name?: string;
+  type?: string;
+  city?: string;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  status?: PartnerUpdateStatus;
+}
+
 export interface Medicine {
   id: number;
   name: string;

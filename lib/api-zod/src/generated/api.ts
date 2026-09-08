@@ -281,3 +281,163 @@ export const GetWeatherRiskResponse = zod.object({
 })
 
 
+export const GetMyAccessResponse = zod.object({
+  "userId": zod.string(),
+  "role": zod.enum(['admin', 'pharmacist', 'supply_manager', 'beneficiary']),
+  "permissions": zod.array(zod.string())
+})
+
+
+export const ListBeneficiaryApplicationsResponseItem = zod.object({
+  "id": zod.number().int(),
+  "userId": zod.string(),
+  "fullName": zod.string(),
+  "email": zod.string().email(),
+  "phone": zod.string(),
+  "organization": zod.string(),
+  "organizationType": zod.string(),
+  "requestedRole": zod.enum(['admin', 'pharmacist', 'supply_manager', 'beneficiary']),
+  "status": zod.enum(['pending', 'approved', 'rejected']),
+  "submittedAt": zod.coerce.date(),
+  "reviewedAt": zod.string(),
+  "reviewerNote": zod.string()
+})
+export const ListBeneficiaryApplicationsResponse = zod.array(ListBeneficiaryApplicationsResponseItem)
+
+
+export const createBeneficiaryApplicationBodyFullNameMin = 2;
+
+export const createBeneficiaryApplicationBodyPhoneMin = 8;
+
+export const createBeneficiaryApplicationBodyOrganizationMin = 2;
+
+
+
+export const CreateBeneficiaryApplicationBody = zod.object({
+  "fullName": zod.string().min(createBeneficiaryApplicationBodyFullNameMin),
+  "email": zod.string().email(),
+  "phone": zod.string().min(createBeneficiaryApplicationBodyPhoneMin),
+  "organization": zod.string().min(createBeneficiaryApplicationBodyOrganizationMin),
+  "organizationType": zod.string(),
+  "requestedRole": zod.enum(['admin', 'pharmacist', 'supply_manager', 'beneficiary'])
+})
+
+export const CreateBeneficiaryApplicationResponse = zod.object({
+  "id": zod.number().int(),
+  "userId": zod.string(),
+  "fullName": zod.string(),
+  "email": zod.string().email(),
+  "phone": zod.string(),
+  "organization": zod.string(),
+  "organizationType": zod.string(),
+  "requestedRole": zod.enum(['admin', 'pharmacist', 'supply_manager', 'beneficiary']),
+  "status": zod.enum(['pending', 'approved', 'rejected']),
+  "submittedAt": zod.coerce.date(),
+  "reviewedAt": zod.string(),
+  "reviewerNote": zod.string()
+})
+
+
+export const DecideBeneficiaryApplicationParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const DecideBeneficiaryApplicationBody = zod.object({
+  "decision": zod.enum(['approved', 'rejected']),
+  "reviewerNote": zod.string().optional(),
+  "assignedRole": zod.enum(['admin', 'pharmacist', 'supply_manager', 'beneficiary']).optional()
+})
+
+export const DecideBeneficiaryApplicationResponse = zod.object({
+  "id": zod.number().int(),
+  "userId": zod.string(),
+  "fullName": zod.string(),
+  "email": zod.string().email(),
+  "phone": zod.string(),
+  "organization": zod.string(),
+  "organizationType": zod.string(),
+  "requestedRole": zod.enum(['admin', 'pharmacist', 'supply_manager', 'beneficiary']),
+  "status": zod.enum(['pending', 'approved', 'rejected']),
+  "submittedAt": zod.coerce.date(),
+  "reviewedAt": zod.string(),
+  "reviewerNote": zod.string()
+})
+
+
+export const ListPartnersResponseItem = zod.object({
+  "id": zod.number().int(),
+  "name": zod.string(),
+  "type": zod.string(),
+  "city": zod.string(),
+  "contactName": zod.string(),
+  "contactEmail": zod.string().email(),
+  "contactPhone": zod.string(),
+  "status": zod.enum(['active', 'suspended', 'onboarding']),
+  "medicinesCount": zod.number().int(),
+  "joinedAt": zod.coerce.date()
+})
+export const ListPartnersResponse = zod.array(ListPartnersResponseItem)
+
+
+export const createPartnerBodyNameMin = 2;
+
+
+
+export const CreatePartnerBody = zod.object({
+  "name": zod.string().min(createPartnerBodyNameMin),
+  "type": zod.string(),
+  "city": zod.string(),
+  "contactName": zod.string(),
+  "contactEmail": zod.string().email(),
+  "contactPhone": zod.string()
+})
+
+export const CreatePartnerResponse = zod.object({
+  "id": zod.number().int(),
+  "name": zod.string(),
+  "type": zod.string(),
+  "city": zod.string(),
+  "contactName": zod.string(),
+  "contactEmail": zod.string().email(),
+  "contactPhone": zod.string(),
+  "status": zod.enum(['active', 'suspended', 'onboarding']),
+  "medicinesCount": zod.number().int(),
+  "joinedAt": zod.coerce.date()
+})
+
+
+export const UpdatePartnerParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const UpdatePartnerBody = zod.object({
+  "name": zod.string().optional(),
+  "type": zod.string().optional(),
+  "city": zod.string().optional(),
+  "contactName": zod.string().optional(),
+  "contactEmail": zod.string().email().optional(),
+  "contactPhone": zod.string().optional(),
+  "status": zod.enum(['active', 'suspended', 'onboarding']).optional()
+})
+
+export const UpdatePartnerResponse = zod.object({
+  "id": zod.number().int(),
+  "name": zod.string(),
+  "type": zod.string(),
+  "city": zod.string(),
+  "contactName": zod.string(),
+  "contactEmail": zod.string().email(),
+  "contactPhone": zod.string(),
+  "status": zod.enum(['active', 'suspended', 'onboarding']),
+  "medicinesCount": zod.number().int(),
+  "joinedAt": zod.coerce.date()
+})
+
+
+export const DeletePartnerParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const DeletePartnerResponse = zod.void()
+
+

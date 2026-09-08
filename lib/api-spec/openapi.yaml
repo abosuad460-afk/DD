@@ -14,6 +14,9 @@ tags:
   - name: supply
   - name: alternatives
   - name: weather
+  - name: access
+  - name: beneficiaries
+  - name: partners
 paths:
   /healthz:
     get:
@@ -198,6 +201,121 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/WeatherRisk"
+  /access/me:
+    get:
+      operationId: getMyAccess
+      tags: [access]
+      responses:
+        "200":
+          description: صلاحيات المستخدم الحالي
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserAccess"
+  /beneficiary-applications:
+    get:
+      operationId: listBeneficiaryApplications
+      tags: [beneficiaries]
+      responses:
+        "200":
+          description: طلبات انضمام المستفيدين
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BeneficiaryApplication"
+    post:
+      operationId: createBeneficiaryApplication
+      tags: [beneficiaries]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BeneficiaryApplicationInput"
+      responses:
+        "201":
+          description: طلب الانضمام المنشأ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BeneficiaryApplication"
+  /beneficiary-applications/{id}/decision:
+    patch:
+      operationId: decideBeneficiaryApplication
+      tags: [beneficiaries]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BeneficiaryDecision"
+      responses:
+        "200":
+          description: الطلب بعد القرار
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BeneficiaryApplication"
+  /partners:
+    get:
+      operationId: listPartners
+      tags: [partners]
+      responses:
+        "200":
+          description: الجهات الشريكة
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Partner"
+    post:
+      operationId: createPartner
+      tags: [partners]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartnerInput"
+      responses:
+        "201":
+          description: الجهة المنشأة
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Partner"
+  /partners/{id}:
+    patch:
+      operationId: updatePartner
+      tags: [partners]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartnerUpdate"
+      responses:
+        "200":
+          description: الجهة بعد التحديث
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Partner"
+    delete:
+      operationId: deletePartner
+      tags: [partners]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: تم حذف الجهة
 components:
   parameters:
     Id:
@@ -226,6 +344,91 @@ components:
     DecisionStatus:
       type: string
       enum: [pending, approved, rejected]
+    UserRole:
+      type: string
+      enum: [admin, pharmacist, supply_manager, beneficiary]
+    UserAccess:
+      type: object
+      required: [userId, role, permissions]
+      properties:
+        userId: { type: string }
+        role: { $ref: "#/components/schemas/UserRole" }
+        permissions:
+          type: array
+          items: { type: string }
+    BeneficiaryApplication:
+      type: object
+      required: [id, userId, fullName, email, phone, organization, organizationType, requestedRole, status, submittedAt, reviewedAt, reviewerNote]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        fullName: { type: string }
+        email: { type: string, format: email }
+        phone: { type: string }
+        organization: { type: string }
+        organizationType: { type: string }
+        requestedRole: { $ref: "#/components/schemas/UserRole" }
+        status: { $ref: "#/components/schemas/DecisionStatus" }
+        submittedAt: { type: string, format: date-time }
+        reviewedAt: { type: string }
+        reviewerNote: { type: string }
+    BeneficiaryApplicationInput:
+      type: object
+      required: [fullName, email, phone, organization, organizationType, requestedRole]
+      properties:
+        fullName: { type: string, minLength: 2 }
+        email: { type: string, format: email }
+        phone: { type: string, minLength: 8 }
+        organization: { type: string, minLength: 2 }
+        organizationType: { type: string }
+        requestedRole: { $ref: "#/components/schemas/UserRole" }
+    BeneficiaryDecision:
+      type: object
+      required: [decision]
+      properties:
+        decision:
+          type: string
+          enum: [approved, rejected]
+        reviewerNote: { type: string }
+        assignedRole: { $ref: "#/components/schemas/UserRole" }
+    Partner:
+      type: object
+      required: [id, name, type, city, contactName, contactEmail, contactPhone, status, medicinesCount, joinedAt]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        type: { type: string }
+        city: { type: string }
+        contactName: { type: string }
+        contactEmail: { type: string, format: email }
+        contactPhone: { type: string }
+        status:
+          type: string
+          enum: [active, suspended, onboarding]
+        medicinesCount: { type: integer }
+        joinedAt: { type: string, format: date }
+    PartnerInput:
+      type: object
+      required: [name, type, city, contactName, contactEmail, contactPhone]
+      properties:
+        name: { type: string, minLength: 2 }
+        type: { type: string }
+        city: { type: string }
+        contactName: { type: string }
+        contactEmail: { type: string, format: email }
+        contactPhone: { type: string }
+    PartnerUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        type: { type: string }
+        city: { type: string }
+        contactName: { type: string }
+        contactEmail: { type: string, format: email }
+        contactPhone: { type: string }
+        status:
+          type: string
+          enum: [active, suspended, onboarding]
     Medicine:
       type: object
       required: [id, name, scientificName, sku, category, stock, unit, reorderPoint, safeStock, dailyConsumption, status, priority, expiryDate, location, predictedRunoutDate, coverageDays]
