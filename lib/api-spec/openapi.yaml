@@ -1,0 +1,367 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: واجهة نظام مخزون الأدوية الذكي
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+  - name: dashboard
+  - name: medicines
+  - name: alerts
+  - name: supply
+  - name: alternatives
+  - name: weather
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      responses:
+        "200":
+          description: ملخص لوحة التحكم
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dashboard"
+  /medicines:
+    get:
+      operationId: listMedicines
+      tags: [medicines]
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+        - in: query
+          name: status
+          schema:
+            $ref: "#/components/schemas/StockStatus"
+        - in: query
+          name: priority
+          schema:
+            $ref: "#/components/schemas/MedicinePriority"
+      responses:
+        "200":
+          description: قائمة الأدوية
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Medicine"
+  /medicines/{id}:
+    patch:
+      operationId: updateMedicine
+      tags: [medicines]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicineUpdate"
+      responses:
+        "200":
+          description: الدواء بعد التحديث
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Medicine"
+  /alerts:
+    get:
+      operationId: listAlerts
+      tags: [alerts]
+      responses:
+        "200":
+          description: قائمة التنبيهات
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Alert"
+  /alerts/{id}/acknowledge:
+    patch:
+      operationId: acknowledgeAlert
+      tags: [alerts]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: التنبيه بعد الاعتماد
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Alert"
+  /supply-orders:
+    get:
+      operationId: listSupplyOrders
+      tags: [supply]
+      responses:
+        "200":
+          description: طلبات التوريد
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SupplyOrder"
+    post:
+      operationId: createSupplyOrder
+      tags: [supply]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SupplyOrderInput"
+      responses:
+        "201":
+          description: طلب التوريد المنشأ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupplyOrder"
+  /supply-orders/{id}:
+    patch:
+      operationId: updateSupplyOrder
+      tags: [supply]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SupplyOrderUpdate"
+      responses:
+        "200":
+          description: طلب التوريد بعد التحديث
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupplyOrder"
+  /alternatives:
+    get:
+      operationId: listAlternatives
+      tags: [alternatives]
+      responses:
+        "200":
+          description: البدائل العلاجية المقترحة
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Alternative"
+  /alternatives/{id}/decision:
+    patch:
+      operationId: decideAlternative
+      tags: [alternatives]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AlternativeDecision"
+      responses:
+        "200":
+          description: البديل بعد قرار الصيدلي
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Alternative"
+  /weather:
+    get:
+      operationId: getWeatherRisk
+      tags: [weather]
+      responses:
+        "200":
+          description: حالة الطقس ومخاطر التوريد
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeatherRisk"
+components:
+  parameters:
+    Id:
+      in: path
+      name: id
+      required: true
+      schema: { type: integer }
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string }
+    StockStatus:
+      type: string
+      enum: [available, low, critical]
+    MedicinePriority:
+      type: string
+      enum: [vital, essential, desirable]
+    SupplyStatus:
+      type: string
+      enum: [draft, ordered, shipped, received, delayed]
+    AlertSeverity:
+      type: string
+      enum: [info, warning, critical]
+    DecisionStatus:
+      type: string
+      enum: [pending, approved, rejected]
+    Medicine:
+      type: object
+      required: [id, name, scientificName, sku, category, stock, unit, reorderPoint, safeStock, dailyConsumption, status, priority, expiryDate, location, predictedRunoutDate, coverageDays]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        scientificName: { type: string }
+        sku: { type: string }
+        category: { type: string }
+        stock: { type: integer }
+        unit: { type: string }
+        reorderPoint: { type: integer }
+        safeStock: { type: integer }
+        dailyConsumption: { type: number }
+        status: { $ref: "#/components/schemas/StockStatus" }
+        priority: { $ref: "#/components/schemas/MedicinePriority" }
+        expiryDate: { type: string, format: date }
+        location: { type: string }
+        predictedRunoutDate: { type: string, format: date }
+        coverageDays: { type: integer }
+    MedicineUpdate:
+      type: object
+      properties:
+        stock: { type: integer, minimum: 0 }
+        reorderPoint: { type: integer, minimum: 0 }
+        safeStock: { type: integer, minimum: 0 }
+        priority: { $ref: "#/components/schemas/MedicinePriority" }
+    Alert:
+      type: object
+      required: [id, medicineId, medicineName, title, message, severity, createdAt, acknowledged]
+      properties:
+        id: { type: integer }
+        medicineId: { type: integer }
+        medicineName: { type: string }
+        title: { type: string }
+        message: { type: string }
+        severity: { $ref: "#/components/schemas/AlertSeverity" }
+        createdAt: { type: string, format: date-time }
+        acknowledged: { type: boolean }
+    SupplyOrder:
+      type: object
+      required: [id, orderNumber, supplier, medicineId, medicineName, quantity, status, orderedAt, expectedArrival, priority]
+      properties:
+        id: { type: integer }
+        orderNumber: { type: string }
+        supplier: { type: string }
+        medicineId: { type: integer }
+        medicineName: { type: string }
+        quantity: { type: integer }
+        status: { $ref: "#/components/schemas/SupplyStatus" }
+        orderedAt: { type: string, format: date }
+        expectedArrival: { type: string, format: date }
+        priority: { $ref: "#/components/schemas/MedicinePriority" }
+    SupplyOrderInput:
+      type: object
+      required: [supplier, medicineId, medicineName, quantity, expectedArrival, priority]
+      properties:
+        supplier: { type: string, minLength: 2 }
+        medicineId: { type: integer }
+        medicineName: { type: string }
+        quantity: { type: integer, minimum: 1 }
+        expectedArrival: { type: string, format: date }
+        priority: { $ref: "#/components/schemas/MedicinePriority" }
+    SupplyOrderUpdate:
+      type: object
+      required: [status]
+      properties:
+        status: { $ref: "#/components/schemas/SupplyStatus" }
+        expectedArrival: { type: string, format: date }
+    Alternative:
+      type: object
+      required: [id, medicineId, medicineName, alternativeName, activeIngredient, availableStock, similarity, decision, pharmacistNote]
+      properties:
+        id: { type: integer }
+        medicineId: { type: integer }
+        medicineName: { type: string }
+        alternativeName: { type: string }
+        activeIngredient: { type: string }
+        availableStock: { type: integer }
+        similarity: { type: integer }
+        decision: { $ref: "#/components/schemas/DecisionStatus" }
+        pharmacistNote: { type: string }
+    AlternativeDecision:
+      type: object
+      required: [decision]
+      properties:
+        decision:
+          type: string
+          enum: [approved, rejected]
+        pharmacistNote: { type: string }
+    Dashboard:
+      type: object
+      required: [totalMedicines, availableCount, lowCount, criticalCount, activeAlerts, openOrders, stockHealth, monthlyStockouts, earlyDetectionRate, averageDispenseMinutes, consumptionTrend, predictedRunouts, recentAlerts, upcomingOrders]
+      properties:
+        totalMedicines: { type: integer }
+        availableCount: { type: integer }
+        lowCount: { type: integer }
+        criticalCount: { type: integer }
+        activeAlerts: { type: integer }
+        openOrders: { type: integer }
+        stockHealth: { type: integer }
+        monthlyStockouts: { type: integer }
+        earlyDetectionRate: { type: integer }
+        averageDispenseMinutes: { type: number }
+        consumptionTrend:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConsumptionPoint"
+        predictedRunouts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Medicine"
+        recentAlerts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Alert"
+        upcomingOrders:
+          type: array
+          items:
+            $ref: "#/components/schemas/SupplyOrder"
+    ConsumptionPoint:
+      type: object
+      required: [day, dispensed, received]
+      properties:
+        day: { type: string }
+        dispensed: { type: integer }
+        received: { type: integer }
+    WeatherRisk:
+      type: object
+      required: [city, temperature, condition, severity, riskWindow, recommendation, affectedOrders, updatedAt]
+      properties:
+        city: { type: string }
+        temperature: { type: integer }
+        condition: { type: string }
+        severity: { $ref: "#/components/schemas/AlertSeverity" }
+        riskWindow: { type: string }
+        recommendation: { type: string }
+        affectedOrders: { type: integer }
+        updatedAt: { type: string, format: date-time }

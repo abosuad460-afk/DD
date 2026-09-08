@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "نظام مخزون الأدوية الذكي"
+description = "لوحة تحكم عربية RTL للصيادلة ومسؤولي المخزون لمتابعة أرصدة الأدوية، التنبؤ بالنقص، إدارة التنبيهات وطلبات التوريد، ومراجعة البدائل العلاجية والظروف الجوية."
+version = "1.0.0"
+id = "artifacts/med-stock-intelligence"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19325
+
+[services.development]
+run = "pnpm --filter @workspace/med-stock-intelligence run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/med-stock-intelligence", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/med-stock-intelligence/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19325"
+BASE_PATH = "/"
